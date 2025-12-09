@@ -2,13 +2,13 @@
 Simple example showing WBAL usage.
 
 This demonstrates:
-1. Writing a custom environment with @tool methods
-2. Writing a custom agent with @tool methods
+1. Writing a custom environment with @weaveTool methods
+2. Writing a custom agent with @weaveTool methods
 3. Running them together via a sandbox
 """
 
 import asyncio
-from wbal import OpenAIResponsesLM, Agent, Env, tool
+from wbal import OpenAIResponsesLM, Agent, Env, weaveTool
 
 
 # -----------------------------------------------------------------------------
@@ -33,7 +33,7 @@ The sandbox contains data files you need to analyze.
 DO NOT ACCESS THE INTERNET.
 """
 
-    @tool
+    @weaveTool
     async def read_file(self, path: str) -> str:
         """Read a file from the sandbox."""
         try:
@@ -42,13 +42,13 @@ DO NOT ACCESS THE INTERNET.
         except Exception as e:
             return f"Error: {e}"
 
-    @tool
+    @weaveTool
     async def write_file(self, path: str, content: str) -> str:
         """Write content to a file in the sandbox."""
         success = await self.sandbox.write_file(path, content.encode())
         return f"Successfully wrote to {path}" if success else f"Failed to write {path}"
 
-    @tool
+    @weaveTool
     async def run_command(self, command: str) -> str:
         """Run a shell command in the sandbox."""
         result = await self.sandbox.exec(["sh", "-c", command])
@@ -74,13 +74,13 @@ Think step by step and use the note tool to track your reasoning."""
 
     _notes: list[str] = []
 
-    @tool
+    @weaveTool
     def note(self, content: str) -> str:
         """Record a note or observation during analysis."""
         self._notes.append(content)
         return f"Note recorded: {content}"
 
-    @tool
+    @weaveTool
     def get_notes(self) -> str:
         """Retrieve all recorded notes."""
         if not self._notes:

@@ -14,6 +14,8 @@ from wbal.lm import LM
 from wbal.environment import Environment
 from wbal.helper import get_tools, extract_tool_schema, to_openai_tool
 
+import weave
+
 
 # Type aliases for formatter callables
 ToolCallDefinitionFormatter = Callable[[dict[str, Any]], dict[str, Any]]
@@ -160,6 +162,7 @@ class Agent(WBALObject):
         """
         pass
 
+    @weave.op()
     def step(self) -> None:
         """
         Execute one perceive-invoke-do cycle.
@@ -167,11 +170,13 @@ class Agent(WBALObject):
         Calls perceive(), invoke(), and do() in sequence,
         then increments the step counter.
         """
+        # @zamborg FIX this please percieve should probably mutate state, but invoke should pass to do should return ...
         self.perceive()
         self.invoke()
         self.do()
         self._step_count += 1
 
+    @weave.op()
     def run(self, task: str | None = None, max_steps: int | None = None) -> dict[str, Any]:
         """
         Run the agent until stop condition is met.
@@ -202,3 +207,13 @@ class Agent(WBALObject):
             "steps": self._step_count,
             "task": self.env.task,
         }
+
+    # NOTE: WE RECOMMEND USING THIS TO EXIT THE AGENT WHEN YOU WANT TO STOP THE AGENT FROM RUNNING LONG_N
+    # @weaveTool
+    # def exit(self, exit_message: str) -> str:
+    #     """
+    #     Exit your run loop.
+    #         - please provide `exit_message` as a message to the user or developer. This can be your terminal result or your final summary or any content you'd like to leave your controller with after your run loop.
+    #     """
+    #     print(exit_message)
+    #     return exit_message

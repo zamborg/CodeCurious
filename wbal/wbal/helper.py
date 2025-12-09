@@ -5,6 +5,7 @@ Contains data marshalling functions for converting between different
 tool definition formats (OpenAI, Anthropic, etc.)
 """
 
+import json
 from re import L
 from typing import Any, Callable, get_type_hints, get_origin, get_args, Union
 import inspect
@@ -140,6 +141,18 @@ def to_openai_tool(schema: dict[str, Any]) -> dict[str, Any]:
         "parameters": schema["parameters"],
     }
 
+def format_openai_tool_response(tc_output: dict[str, Any] | str, call_id: str) -> dict[str, Any]:
+    """
+    Marshal a dict into the tool-response format expected by OpenAI.
+    You MUST pass a call_id that was provided by OpenAI in the `tool_call_id` field of the tool response. (or something like that lol)
+    """
+    output_str = json.dumps(tc_output) if isinstance(tc_output, dict) else str(tc_output)
+    ret = {
+        "call_id": call_id,
+        "output": output_str,
+        "type": "function_call_output",
+    }
+    return ret
 
 # -----------------------------------------------------------------------------
 # Decorators
