@@ -10,6 +10,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
+from sandbox.interface import SandboxInterface
+
 
 class WBALObject(BaseModel, ABC):
     """
@@ -31,7 +33,7 @@ class WBALObject(BaseModel, ABC):
         """
         ...
 
-    def setup(self, sandbox: Any) -> None:
+    def setup(self, sandbox: SandboxInterface) -> None:
         """
         Initialize this object with a sandbox execution context.
 
