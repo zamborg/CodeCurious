@@ -1,0 +1,18 @@
+[project]
+name = "codecurious"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "litellm>=1.80.9",
+    "marimo>=0.18.3",
+    "openai>=2.9.0",
+    "pydantic>=2.12.5",
+    "weave>=0.52.22",
+]
+
+[tool.uv.workspace]
+members = [
+    "wbal",
+]
