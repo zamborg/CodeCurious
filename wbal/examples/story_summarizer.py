@@ -137,6 +137,8 @@ class StoryAgent(Agent):
     _last_response: dict[str, Any] | None = None
     """Last LLM response for use in do()."""
 
+    _exit: bool = False
+
     @weaveTool
     def AddToMemory(self, content: str) -> str:
         """
@@ -156,9 +158,7 @@ class StoryAgent(Agent):
     @property
     def stopCondition(self) -> bool:
         """Stop when max steps reached or LLM produces no tool calls."""
-        if self._step_count >= self.maxSteps:
-            return True
-
+        return  self._exit
 
     @weave.op()
     def perceive(self) -> None:
@@ -215,8 +215,7 @@ class StoryAgent(Agent):
         Exit your run loop.
             - please provide `exit_message` as a message to the user or developer. This can be your terminal result or your final summary or any content you'd like to leave your controller with after your run loop.
         """
-        print(exit_message)
-        self.stopCondition = True
+        self._exit = True
         return exit_message
 
 
@@ -252,6 +251,7 @@ def run_story_summarizer(file_paths: list[str], task: str = "Summarize this stor
     return {
         "steps": result["steps"],
         "messages": agent.messages,
+        'agent': agent,
     }
 
 
@@ -281,10 +281,7 @@ if __name__ == "__main__":
         result = run_story_summarizer(FILE_PATHS)
 
         print("=== Memory ===")
-        for i, mem in enumerate(result["memory"], 1):
+        for i, mem in enumerate(result["agent"].memory):
             print(f"{i}. {mem}")
 
-        print("\n=== Summary ===")
-        print(result["summary"])
-
-        print(f"\n=== Completed in {result['steps']} steps ===")
+        print(f"\n=== Completed in {result['steps']} steps === using agent: {len(result['messages'])} messages")

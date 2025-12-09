@@ -89,7 +89,7 @@ class Agent(WBALObject):
         Returns:
             True if agent should stop
         """
-        return self._step_count >= self.maxSteps
+        return False
 
     def getToolDefinitions(self) -> tuple[list[dict[str, Any]], dict[str, Callable]]:
         """
@@ -199,9 +199,10 @@ class Agent(WBALObject):
         # Reset step counter
         self._step_count = 0
 
-        # Main loop
-        while not self.stopCondition:
+        for _ in range(self.maxSteps):
             self.step()
+            if self.stopCondition:
+                break
 
         return {
             "steps": self._step_count,
