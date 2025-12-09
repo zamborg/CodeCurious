@@ -1,2 +1,102 @@
-_tmp_/
+### OS / Editor ###
+.DS_Store
+*.swp
+*.swo
+*.orig
+.idea/
+.vscode/
+
+### Python artifacts ###
+__pycache__/
+*.py[codz]
+*$py.class
+*.so
+
+### Packaging / builds ###
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+*.egg-info/
+*.egg
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+MANIFEST
+pip-wheel-metadata/
+develop-eggs/
+
+### Installer logs ###
+pip-log.txt
+pip-delete-this-directory.txt
+
+### Test / coverage ###
+.coverage
+.coverage.*
+.cache
+htmlcov/
+cover/
+.tox/
+.nox/
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+.hypothesis/
+.pytest_cache/
+
+### Environments ###
+.env
+.envrc
+.venv
+.venv*/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.pdm-python
+.pdm-build/
+.pixi
+__pypackages__/
+
+### Type checking / lint ###
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+
+### Documentation ###
+docs/_build/
+site/
+
+### Framework / tooling miscellany ###
+celerybeat-schedule
+celerybeat.pid
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+instance/
+.webassets-cache
+.scrapy
+.pybuilder/
+target/
+.pypirc
+.abstra/
+.cursorignore
+.cursorindexingignore
+
+### Project-specific scratch ###
+/_tmp/
+__marimo__/
+marimo/_static/
+marimo/_lsp/
 
