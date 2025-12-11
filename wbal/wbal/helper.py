@@ -155,6 +155,25 @@ def format_openai_tool_response(tc_output: dict[str, Any] | str, call_id: str) -
     return ret
 
 # -----------------------------------------------------------------------------
+# Anthropic format
+# -----------------------------------------------------------------------------
+
+# I DON'T THINK THIS WORKS
+def to_anthropic_tool(schema: dict[str, Any]) -> dict[str, Any]:
+    """
+    Convert a tool schema to Anthropic's tool format.
+
+    Args:
+        schema: Tool schema from extract_tool_schema()
+    """
+
+    return {
+        "name": schema["name"],
+        "description": schema["description"],
+        "parameters": schema["parameters"],
+    }
+
+# -----------------------------------------------------------------------------
 # Decorators
 # -----------------------------------------------------------------------------
 

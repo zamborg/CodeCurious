@@ -14,6 +14,8 @@ from wbal.lm import LM
 from wbal.environment import Environment
 from wbal.helper import get_tools, extract_tool_schema, to_openai_tool
 
+from sandbox.interface import SandboxInterface
+
 import weave
 
 

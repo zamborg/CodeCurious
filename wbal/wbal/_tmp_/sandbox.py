@@ -19,52 +19,52 @@ The sandbox is an async context manager and handles its own lifecycle.
 
 from typing import Any, Protocol, runtime_checkable
 from dataclasses import dataclass
+from sandbox.interface import SandboxInterface, ExecResult
+import asyncio
+
+import shlex
 
 
-@dataclass
-class ExecResult:
-    """Result from sandbox exec operation."""
-    stdout: bytes
-    stderr: bytes
-    returncode: int
-
-
-@runtime_checkable
-class SandboxProtocol(Protocol):
+# Helpers
+async def run_cmd(cmd: list[str], sandbox: SandboxInterface) -> ExecResult:
     """
-    Protocol defining the expected sandbox interface.
-
-    Your sandbox implementation should match this interface.
+    Run a raw argv command (no shell) and raise on failure.
     """
-
-    async def exec(
-        self,
-        command: list[str],
-        *,
-        timeout_seconds: int | None = None,
-    ) -> ExecResult:
-        """Execute a command in the sandbox."""
-        ...
-
-    async def read_file(
-        self,
-        filepath: str,
-        *,
-        timeout_seconds: int | None = None,
-    ) -> bytes:
-        """Read a file from the sandbox."""
-        ...
-
-    async def write_file(
-        self,
-        filepath: str,
-        contents: bytes,
-        *,
-        timeout_seconds: int | None = None,
-    ) -> bool:
-        """Write a file to the sandbox."""
-        ...
+    result = await sandbox.exec(cmd)
+    if result.returncode != 0:
+        stdout = result.stdout.decode(errors="ignore") if result.stdout else ""
+        stderr = result.stderr.decode(errors="ignore") if result.stderr else ""
+        raise RuntimeError(
+            f"Command failed ({' '.join(cmd)}): {result.returncode}\n"
+            f"stdout:\n{stdout}\n"
+            f"stderr:\n{stderr}"
+        )
+    return result
 
 
-# Type alias for convenience
-Sandbox = SandboxProtocol
+async def run_shell(script: str, sandbox: SandboxInterface) -> ExecResult:
+    """
+    Run a shell script via /bin/bash -lc and raise on failure.
+    """
+    result = await sandbox.exec(["bash", "-lc", script])
+    if result.returncode != 0:
+        stdout = result.stdout.decode(errors="ignore") if result.stdout else ""
+        stderr = result.stderr.decode(errors="ignore") if result.stderr else ""
+        raise RuntimeError(
+            "Shell command failed (bash -lc): "
+            f"{result.returncode}\n"
+            f"stdout:\n{stdout}\n"
+            f"stderr:\n{stderr}"
+        )
+    return result
+
+
+async def set_api_key_env(api_key_env_var: str, api_key: str, sandbox: SandboxInterface) -> None:
+    """
+    Persist {api_key_env_var} into ~/.bashrc inside the sandbox.
+    @zamborg note that this is a hack of a tool
+    """
+    quoted = shlex.quote(api_key)
+    await run_shell(f"echo 'export {api_key_env_var}={quoted}' >> ~/.bashrc", sandbox)
+
+

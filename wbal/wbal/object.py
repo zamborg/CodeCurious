@@ -33,7 +33,7 @@ class WBALObject(BaseModel, ABC):
         """
         ...
 
-    def setup(self, sandbox: SandboxInterface) -> None:
+    async def setup(self, sandbox: SandboxInterface) -> None:
         """
         Initialize this object with a sandbox execution context.
 
@@ -43,4 +43,16 @@ class WBALObject(BaseModel, ABC):
         Args:
             sandbox: The sandbox object providing read_file, write_file, run_command
         """
-        pass
+        print(f"WARNING: please overload this setup method as by default this *only* setups the children")
+        await self._setup_children(sandbox) # by default we just setup all the children, this should be overloaded
+
+    async def _setup_children(self, sandbox: SandboxInterface) -> None:
+        """
+        calls `setup` on all children objects
+        """ 
+        for child_name, child_obj in self.__iter__():
+            if isinstance(child_obj, WBALObject):
+                print(f"Setting up {child_name}")
+                await child_obj.setup(sandbox)
+            else:
+                print(f"Skipping setup of {child_name} as it is not a WBALObject")
