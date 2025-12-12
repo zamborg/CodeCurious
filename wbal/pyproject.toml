@@ -1,0 +1,7 @@
+[project]
+name = "wbal"
+version = "0.2.0"
+description = "Weights & Biases Agent Library - A minimal framework for building LLM agents"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []

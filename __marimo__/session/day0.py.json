@@ -1,0 +1,170 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.18.3"
+  },
+  "cells": [
+    {
+      "id": "Hbol",
+      "code_hash": "56154c5e70b245ebd269d8943915bdda",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "MJUe",
+      "code_hash": "ed9f4b8f879ddbb59fda1057ea3a2810",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "43959f76b3fdce5498d2a4f31b11827a",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "5f69483106f0eeaecf2245404267b37d",
+      "outputs": [],
+      "console": []
+    },
+    {
+      "id": "lEQa",
+      "code_hash": "c1f70834a101ca66263ef0d5dd4cefbc",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "exception",
+          "evalue": "No sandbox is running",
+          "traceback": []
+        }
+      ],
+      "console": [
+        {
+          "type": "stream",
+          "name": "stderr",
+          "text": "<span class=\"codehilite\"><div class=\"highlight\"><pre><span></span><span class=\"gt\">Traceback (most recent call last):</span>\n  File <span class=\"nb\">&quot;/Users/zaysola/Documents/wandb/CodeCurious/.venv/lib/python3.13/site-packages/marimo/_runtime/executor.py&quot;</span>, line <span class=\"m\">117</span>, in <span class=\"n\">execute_cell_async</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"k\">await</span> <span class=\"nb\">eval</span><span class=\"p\">(</span><span class=\"n\">cell</span><span class=\"o\">.</span><span class=\"n\">last_expr</span><span class=\"p\">,</span> <span class=\"n\">glbls</span><span class=\"p\">)</span>\n<span class=\"w\">           </span><span class=\"pm\">^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>\n  File <span class=\"nb\">&quot;/var/folders/_7/ps3vhy7n6h1chdm8q19vpf5h0000gp/T/marimo_13146/__marimo__cell_lEQa_.py&quot;</span>, line <span class=\"m\">10</span>, in <span class=\"n\">&lt;module&gt;</span>\n<span class=\"w\">    </span><span class=\"k\">await</span> <span class=\"n\">sandbox</span><span class=\"o\">.</span><span class=\"n\">exec</span><span class=\"p\">([</span><span class=\"s1\">&#39;echo&#39;</span><span class=\"p\">,</span> <span class=\"s1\">&#39;hello&#39;</span><span class=\"p\">])</span>\n  File <span class=\"nb\">&quot;/Users/zaysola/Documents/wandb/CodeCurious/sandbox/src/sandbox/docker.py&quot;</span>, line <span class=\"m\">250</span>, in <span class=\"n\">exec</span>\n<span class=\"w\">    </span><span class=\"k\">raise</span> <span class=\"ne\">RuntimeError</span><span class=\"p\">(</span><span class=\"s2\">&quot;No sandbox is running&quot;</span><span class=\"p\">)</span>\n<span class=\"gr\">RuntimeError</span>: <span class=\"n\">No sandbox is running</span>\n</pre></div>\n</span>",
+          "mimetype": "application/vnd.marimo+traceback"
+        }
+      ]
+    },
+    {
+      "id": "PKri",
+      "code_hash": "ab90b1a8a8755a23374a327c07f9bfe3",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<pre class='text-xs'>&#x27;1183c97299d4a86e62c4c53c1bff187067e6cf93dddc92020037e5a9acd76fa5&#x27;</pre>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "CpXY",
+      "code_hash": "cd37e4828f32f0d0dc550b9f6d45db0d",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<pre class='text-xs'>ExecResult(stdout=b&#x27;hello\\n&#x27;, stderr=b&#x27;&#x27;, returncode=0)</pre>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "wkif",
+      "code_hash": "73a5ffc4effc0ae300c798755225b05f",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<pre class='text-xs'>True</pre>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "bIFE",
+      "code_hash": "659206f6dd640ab9a2909ad1f20a5566",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<pre class='text-xs'>b&#x27;# HELLO\\nThis is an example zubin file\\n&#x27;</pre>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "xyfC",
+      "code_hash": "a212d3f4dcd0a6e5ebbfcb0ebbbb3cb1",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<pre class='text-xs'>&#x27;e6901f5d5c1d557b2ab9db92eadbfaf37115d819f74b53281e7b71b14040d3fb&#x27;</pre>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "dyXV",
+      "code_hash": "6ed9cdc55664b0efa8b633824c38f07a",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "exception",
+          "evalue": "This cell raised an exception: CancelledError",
+          "traceback": []
+        }
+      ],
+      "console": [
+        {
+          "type": "stream",
+          "name": "stderr",
+          "text": "<span class=\"codehilite\"><div class=\"highlight\"><pre><span></span><span class=\"gt\">Traceback (most recent call last):</span>\n  File <span class=\"nb\">&quot;/Users/zaysola/Documents/wandb/CodeCurious/.venv/lib/python3.13/site-packages/marimo/_runtime/executor.py&quot;</span>, line <span class=\"m\">117</span>, in <span class=\"n\">execute_cell_async</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"k\">await</span> <span class=\"nb\">eval</span><span class=\"p\">(</span><span class=\"n\">cell</span><span class=\"o\">.</span><span class=\"n\">last_expr</span><span class=\"p\">,</span> <span class=\"n\">glbls</span><span class=\"p\">)</span>\n<span class=\"w\">           </span><span class=\"pm\">^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>\n  File <span class=\"nb\">&quot;/var/folders/_7/ps3vhy7n6h1chdm8q19vpf5h0000gp/T/marimo_13146/__marimo__cell_dyXV_.py&quot;</span>, line <span class=\"m\">1</span>, in <span class=\"n\">&lt;module&gt;</span>\n<span class=\"w\">    </span><span class=\"k\">await</span> <span class=\"n\">sandbox</span><span class=\"o\">.</span><span class=\"n\">stop</span><span class=\"p\">()</span>\n  File <span class=\"nb\">&quot;/Users/zaysola/Documents/wandb/CodeCurious/sandbox/src/sandbox/docker.py&quot;</span>, line <span class=\"m\">208</span>, in <span class=\"n\">stop</span>\n<span class=\"w\">    </span><span class=\"k\">await</span> <span class=\"n\">asyncio</span><span class=\"o\">.</span><span class=\"n\">wait_for</span><span class=\"p\">(</span>\n<span class=\"w\">    </span><span class=\"o\">...&lt;</span><span class=\"mi\">2</span> <span class=\"n\">lines</span><span class=\"o\">&gt;...</span>\n<span class=\"w\">    </span><span class=\"p\">)</span>\n  File <span class=\"nb\">&quot;/Users/zaysola/.local/share/uv/python/cpython-3.13.5-macos-aarch64-none/lib/python3.13/asyncio/tasks.py&quot;</span>, line <span class=\"m\">507</span>, in <span class=\"n\">wait_for</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"k\">await</span> <span class=\"n\">fut</span>\n<span class=\"w\">           </span><span class=\"pm\">^^^^^^^^^</span>\n  File <span class=\"nb\">&quot;/Users/zaysola/.local/share/uv/python/cpython-3.13.5-macos-aarch64-none/lib/python3.13/asyncio/threads.py&quot;</span>, line <span class=\"m\">25</span>, in <span class=\"n\">to_thread</span>\n<span class=\"w\">    </span><span class=\"k\">return</span> <span class=\"k\">await</span> <span class=\"n\">loop</span><span class=\"o\">.</span><span class=\"n\">run_in_executor</span><span class=\"p\">(</span><span class=\"kc\">None</span><span class=\"p\">,</span> <span class=\"n\">func_call</span><span class=\"p\">)</span>\n<span class=\"w\">           </span><span class=\"pm\">^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>\n<span class=\"gr\">asyncio.exceptions.CancelledError</span>\n</pre></div>\n</span>",
+          "mimetype": "application/vnd.marimo+traceback"
+        }
+      ]
+    },
+    {
+      "id": "XJfb",
+      "code_hash": "a01e6efb23741897b6b12ddaa944629c",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<pre class='text-xs'>ExecResult(stdout=b&#x27;&#x27;, stderr=b&#x27;&#x27;, returncode=0)</pre>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "YIpa",
+      "code_hash": null,
+      "outputs": [],
+      "console": []
+    }
+  ]
+}

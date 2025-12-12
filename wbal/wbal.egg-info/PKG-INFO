@@ -1,0 +1,6 @@
+Metadata-Version: 2.4
+Name: wbal
+Version: 0.2.0
+Summary: Weights & Biases Agent Library - A minimal framework for building LLM agents
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
