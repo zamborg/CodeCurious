@@ -2,13 +2,16 @@ README.md
 pyproject.toml
 tests/test_agent.py
 tests/test_environment.py
+tests/test_helper.py
 tests/test_lm.py
+tests/test_mixins.py
 tests/test_story_summarizer.py
 wbal/__init__.py
 wbal/agent.py
 wbal/environment.py
 wbal/helper.py
 wbal/lm.py
+wbal/mixins.py
 wbal/object.py
 wbal/sandboxer.py
 wbal.egg-info/PKG-INFO

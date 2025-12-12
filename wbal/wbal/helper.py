@@ -6,10 +6,68 @@ tool definition formats (OpenAI, Anthropic, etc.)
 """
 
 import json
-from re import L
+import signal
+from contextlib import contextmanager
 from typing import Any, Callable, get_type_hints, get_origin, get_args, Union
 import inspect
 import weave
+
+
+# -----------------------------------------------------------------------------
+# Constants for OpenAI Response API format
+# -----------------------------------------------------------------------------
+
+# Tool call types
+TOOL_TYPE_FUNCTION = "function"
+TOOL_CALL_TYPE = "function_call"
+TOOL_RESULT_TYPE = "function_call_output"
+
+
+# -----------------------------------------------------------------------------
+# Tool timeout utilities
+# -----------------------------------------------------------------------------
+
+class ToolTimeoutError(Exception):
+    """Raised when a tool execution exceeds its timeout."""
+    pass
+
+
+@contextmanager
+def tool_timeout(seconds: int, tool_name: str = "tool"):
+    """
+    Context manager for timing out tool executions.
+
+    Args:
+        seconds: Maximum execution time in seconds
+        tool_name: Name of the tool (for error message)
+
+    Raises:
+        ToolTimeoutError: If execution exceeds timeout
+
+    Example:
+        with tool_timeout(30, "fetch_data"):
+            result = slow_api_call()
+
+    Warning:
+        This uses SIGALRM which only works on Unix systems and
+        only in the main thread. For Windows or threaded contexts,
+        use alternative timeout mechanisms.
+    """
+    def _timeout_handler(signum, frame):
+        raise ToolTimeoutError(
+            f"Tool '{tool_name}' timed out after {seconds} seconds"
+        )
+
+    # Store old handler and set alarm
+    old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
+    signal.alarm(seconds)
+
+    try:
+        yield
+    finally:
+        # Disable alarm and restore old handler
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, old_handler)
 
 def python_type_to_json_schema(python_type: type) -> dict[str, Any]:
     """
@@ -90,7 +148,11 @@ def extract_tool_schema(func: Callable) -> dict[str, Any]:
     hints = {}
     try:
         hints = get_type_hints(func)
-    except Exception:
+    except NameError:
+        # Type hint references undefined name (e.g., forward reference not resolved)
+        pass
+    except AttributeError:
+        # Function doesn't support type hints (e.g., built-in)
         pass
 
     properties = {}
@@ -135,42 +197,52 @@ def to_openai_tool(schema: dict[str, Any]) -> dict[str, Any]:
         OpenAI-compatible tool definition
     """
     return {
-        "type": "function",
+        "type": TOOL_TYPE_FUNCTION,
         "name": schema["name"],
         "description": schema["description"],
         "parameters": schema["parameters"],
     }
 
+
 def format_openai_tool_response(tc_output: dict[str, Any] | str, call_id: str) -> dict[str, Any]:
     """
-    Marshal a dict into the tool-response format expected by OpenAI.
-    You MUST pass a call_id that was provided by OpenAI in the `tool_call_id` field of the tool response. (or something like that lol)
+    Marshal a value into the tool-response format expected by OpenAI Responses API.
+
+    Args:
+        tc_output: The tool's return value (will be JSON-serialized if dict)
+        call_id: The call_id from the function_call item in the response
+
+    Returns:
+        Dict with call_id, output (as string), and type fields
     """
     output_str = json.dumps(tc_output) if isinstance(tc_output, dict) else str(tc_output)
-    ret = {
+    return {
         "call_id": call_id,
         "output": output_str,
-        "type": "function_call_output",
+        "type": TOOL_RESULT_TYPE,
     }
-    return ret
 
 # -----------------------------------------------------------------------------
 # Anthropic format
 # -----------------------------------------------------------------------------
 
-# I DON'T THINK THIS WORKS
 def to_anthropic_tool(schema: dict[str, Any]) -> dict[str, Any]:
     """
     Convert a tool schema to Anthropic's tool format.
 
+    Anthropic expects 'input_schema' instead of 'parameters'.
+    See: https://docs.anthropic.com/en/docs/tool-use
+
     Args:
         schema: Tool schema from extract_tool_schema()
-    """
 
+    Returns:
+        Anthropic-compatible tool definition
+    """
     return {
         "name": schema["name"],
         "description": schema["description"],
-        "parameters": schema["parameters"],
+        "input_schema": schema["parameters"],  # Anthropic uses input_schema
     }
 
 # -----------------------------------------------------------------------------

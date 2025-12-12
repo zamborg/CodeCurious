@@ -5,6 +5,7 @@ Agents execute the perceive-invoke-do loop, maintaining state
 and orchestrating LLM calls with tools from both the agent and environment.
 """
 
+import json
 from typing import Any, Callable
 
 from pydantic import Field, model_validator
@@ -12,7 +13,13 @@ from pydantic import Field, model_validator
 from wbal.object import WBALObject
 from wbal.lm import LM
 from wbal.environment import Environment
-from wbal.helper import get_tools, extract_tool_schema, to_openai_tool
+from wbal.helper import (
+    get_tools,
+    extract_tool_schema,
+    to_openai_tool,
+    format_openai_tool_response,
+    TOOL_CALL_TYPE,
+)
 
 from sandbox.interface import SandboxInterface
 
@@ -57,7 +64,23 @@ class Agent(WBALObject):
     """The environment the agent operates in"""
 
     maxSteps: int = 100
-    """Maximum number of steps before stopping"""
+    """Maximum number of steps before stopping. Alias: max_steps"""
+
+    lm: LM | None = None
+    """Language model for invoke(). Set in subclass or at instantiation."""
+
+    @property
+    def max_steps(self) -> int:
+        """Pythonic alias for maxSteps."""
+        return self.maxSteps
+
+    @max_steps.setter
+    def max_steps(self, value: int) -> None:
+        """Pythonic alias for maxSteps."""
+        self.maxSteps = value
+
+    messages: list[dict[str, Any]] = Field(default_factory=list)
+    """Conversation history. Populated by perceive(), extended by invoke() and do()."""
 
     toolDefinitionFormatter: ToolCallDefinitionFormatter | None = None
     """Optional callable to format tool definitions for the LLM"""
@@ -69,6 +92,8 @@ class Agent(WBALObject):
     _step_count: int = 0
     _tool_definitions: list[dict[str, Any]] = []
     _tool_callables: dict[str, Callable] = {}
+    _last_response: Any = None
+    """Last response from LLM invoke(). Set by invoke(), used by do()."""
 
     @model_validator(mode="after")
     def _setup_tools(self) -> "Agent":
@@ -144,25 +169,137 @@ class Agent(WBALObject):
         """
         pass
 
+    def reset(self, clear_messages: bool = False) -> None:
+        """
+        Reset agent state for a new run.
+
+        Args:
+            clear_messages: If True, also clear the message history.
+                Default is False to allow conversation continuation.
+
+        Call this before re-running an agent to clear step count and
+        any internal state. Subclasses should override this method
+        and call super().reset() to add their own reset logic.
+        """
+        self._step_count = 0
+        self._last_response = None
+        if clear_messages:
+            self.messages = []
+
     def invoke(self) -> Any:
         """
-        Call the LLM with current state and tools.
+        Call the LLM with current messages and tools.
 
-        Override this in subclasses to implement LLM invocation.
+        Default implementation:
+        1. Calls self.lm.invoke(messages=self.messages, tools=self._tool_definitions)
+        2. Stores response in self._last_response
+        3. Extends self.messages with response.output (OpenAI format)
+
+        Override this method for custom LLM invocation logic or
+        different response formats.
 
         Returns:
-            The LLM response (format depends on implementation)
+            The LLM response (stored in _last_response)
+
+        Note:
+            This default implementation assumes:
+            - self.lm is set and has an invoke() method
+            - self.messages is populated (by perceive())
+            - Response has .output attribute (OpenAI Responses API)
+
+            If these assumptions don't hold for your use case,
+            override this method.
         """
-        pass
+        # Check prerequisites
+        if not hasattr(self, 'lm') or self.lm is None:
+            return None
+
+        if not self.messages:
+            return None
+
+        # Prepare tools (None if empty)
+        tools = self._tool_definitions if self._tool_definitions else None
+
+        # Call LLM
+        response = self.lm.invoke(messages=self.messages, tools=tools)
+        self._last_response = response
+
+        # Extend messages with response (OpenAI format)
+        # Response.output is a list of message items
+        if hasattr(response, 'output'):
+            self.messages.extend(response.output)
+
+        return response
 
     def do(self) -> None:
         """
-        Execute actions based on LLM response.
+        Execute tool calls from the LLM response.
 
-        Override this in subclasses to implement tool execution
-        and action handling.
+        Default implementation:
+        1. Extracts function_call items from _last_response.output
+        2. Executes each tool via _tool_callables
+        3. Formats results and appends to messages
+        4. If no tool calls, sends output_text to env.output_handler
+
+        Override this method for custom tool execution logic or
+        different response formats.
+
+        Note:
+            This default implementation assumes:
+            - self._last_response has .output (list) and .output_text (str)
+            - Tool calls have .type == "function_call"
+            - Tool calls have .name, .arguments (JSON string), .call_id
+
+            If these assumptions don't hold, override this method.
         """
-        pass
+        if self._last_response is None:
+            return
+
+        # Get response output
+        output = getattr(self._last_response, 'output', None)
+        if output is None:
+            return
+
+        # Extract tool calls (OpenAI format: type == TOOL_CALL_TYPE)
+        tool_calls = [
+            item for item in output
+            if getattr(item, 'type', None) == TOOL_CALL_TYPE
+        ]
+
+        # If no tool calls, handle text output
+        if not tool_calls:
+            output_text = getattr(self._last_response, 'output_text', '')
+            if output_text and hasattr(self.env, 'output_handler'):
+                self.env.output_handler(output_text)
+            return
+
+        # Execute each tool call
+        for tc in tool_calls:
+            tc_name = getattr(tc, 'name', '')
+            tc_args_raw = getattr(tc, 'arguments', '{}')
+            tc_id = getattr(tc, 'call_id', '')
+
+            # Parse arguments
+            if isinstance(tc_args_raw, str):
+                try:
+                    tc_args = json.loads(tc_args_raw)
+                except json.JSONDecodeError:
+                    tc_args = {}
+            else:
+                tc_args = tc_args_raw or {}
+
+            # Execute tool
+            if tc_name in self._tool_callables:
+                try:
+                    tc_output = self._tool_callables[tc_name](**tc_args)
+                except Exception as e:
+                    tc_output = f"Error executing {tc_name}: {e}"
+            else:
+                tc_output = f"Unknown tool: {tc_name}"
+
+            # Format and append result
+            result = format_openai_tool_response(tc_output, tc_id)
+            self.messages.append(result)
 
     @weave.op()
     def step(self) -> None:
